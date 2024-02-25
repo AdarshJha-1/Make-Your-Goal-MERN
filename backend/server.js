@@ -1,7 +1,7 @@
 const express = require("express");
 const colors = require("colors");
 const dotenv = require("dotenv").config();
-
+const cors = require('cors')
 const PORT = process.env.PORT;
 const connectDB = require("./config/db.js");
 const { errorHandler } = require("./middleware/error.middleware");
@@ -13,6 +13,7 @@ connectDB();
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded());
+app.use(cors())
 app.use("/api/goals", goalRouter);
 app.use("/api/user", userRouter);
 app.use(errorHandler);

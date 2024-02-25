@@ -7,8 +7,8 @@ const User = require("../models/user.model");
 // @route   POST /api/user
 // @access  public
 const registerUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
-  if (!username || !email || !password) {
+  const { name, email, password } = req.body;
+  if (!name || !email || !password) {
     res.status(400);
     throw new Error("Please add all fields");
   }
@@ -25,7 +25,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, salt);
 
   const user = await User.create({
-    username,
+    name,
     email,
     password: hashedPassword,
   });
@@ -33,7 +33,7 @@ const registerUser = asyncHandler(async (req, res) => {
   if (user) {
     res.status(201).json({
       _id: user._id,
-      username: user.username,
+      name: user.name,
       email: user.email,
       token: generateToken(user._id),
     });
@@ -58,7 +58,7 @@ const loginUser = asyncHandler(async (req, res) => {
   if (user && (await bcrypt.compare(password, user.password))) {
     res.json({
       _id: user._id,
-      username: user.username,
+      name: user.name,
       email: user.email,
       token: generateToken(user._id),
     });
@@ -72,20 +72,13 @@ const loginUser = asyncHandler(async (req, res) => {
 // @route   GET /api/user/me
 // @access  private
 const getMe = asyncHandler(async (req, res) => {
-
-  const {_id, username, email} = await User.findById(req.user._id);
-  res.status(200).json({
-    id:_id,
-    username,
-    email
-  })
-  
+  res.status(200).json(req.user);
 });
 
 // Generate JWT
 
 const generateToken = (id) => {
-  return jwt.sign({id}, process.env.JWT_SECRET, { expiresIn: "30d" });
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
 };
 
 module.exports = {
